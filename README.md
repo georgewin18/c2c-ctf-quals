@@ -1170,7 +1170,7 @@ Since the file is confirmed to be **not stripped**, I proceeded with static anal
 
 I then searched for interesting string patterns such as `flag` or `flag.txt`.
 
-[image here]
+![pattern](./assets/reveng/bunaken/find_pattern.png)
 
 Below is the section of the code containing `flag.txt`:
 
