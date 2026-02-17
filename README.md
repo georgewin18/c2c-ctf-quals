@@ -285,13 +285,17 @@ In the **Your Signature** field, I submitted the following payload:
 ```
 {app.config[JWT_SECRET]}
 ```
-[image here]
+![get_secret1](./assets/web/corp-mail/get_jwt_secret1.png)
+
+![get_secret2](./assets/web/corp-mail/get_jwt_secret2.png)
 
 This allowed me to leak the `JWT_SECRET`, which is required for token forgery.
 
 Before forging a token, I needed to confirm the token payload format. To do this, I retrieved the current user token. In Chrome, this can be done by opening `F12`, navigating to the **Application** tab, then checking the **Cookies** section and copying the value of the `token` cookie.
 
 I then pasted the token into [jwt.io](https://jwt.io) and also provided the leaked `JWT_SECRET` in the **JWT Signature Verification** section to verify that the secret was valid.
+
+![confirm_jwt](./assets/web/corp-mail/confirm_jwt_format.png)
 
 After confirming the payload structure, I created a **forged token** using the following Python script:
 
@@ -319,15 +323,19 @@ print(forged_token)
 print("-" * 50)
 ```
 
+![forge_token](./assets/web/corp-mail/forge_token.png)
+
 Next, I replaced the token in the browser with the forged one and accessed the path `//admin/`.
+
+![admin_panel](./assets/web/corp-mail/admin_panel.png)
 
 At this point, I successfully gained access to the Administration Panel. From there, I clicked **View Emails** for the **admin** user.
 
-[image here]
+![admin_history](./assets/web/corp-mail/admin_email_history.png)
 
 This revealed the email history for the admin account. I then opened the email sent to `mike.wilson` with the subject **"Confidential: ..."**.
 
-[image here]
+![solve](./assets/web/corp-mail/solve.png)
 
 Flag: **`C2C{f0rm4t_str1ng_l34k5_4nd_n0rm4l1z4t10n_93a7216dd963}`**
 
