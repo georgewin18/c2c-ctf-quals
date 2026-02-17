@@ -590,9 +590,13 @@ The `.env` file contains a `SECRET_PHRASE`, which can be used as the **Secret Ke
 
 However, at this stage, we still did not obtain the correct **Battle Cry**.
 
+![wrong_battle_cry](./assets/web/rick-soldier/wrong_battle_cries.png)
+
 Next, I performed deeper analysis using **Ghidra with the Go Analyzer Extension**.
 
 I analyzed the `main.main` function and observed that when an incorrect Battle Cry is submitted, the function responsible for handling this case is `rick/router.(*Handler).Fight`.
+
+![vuln](./assets/web/rick-soldier/vuln.png)
 
 I then analyzed the implementation of `rick/router.(*Handler).Fight` and identified an **SSTI (Server-Side Template Injection)** vulnerability:
 
@@ -613,6 +617,10 @@ This payload leverages *reflection* to dump the full structure of the object, in
 ## Exploit
 
 By submitting `{{ printf "%#v" . }}` as the Battle Cry and `Morty_Is_The_Real_One` as the Secret Key, I successfully caused the application to display the flag on the page.
+
+![solve](./assets/web/rick-soldier/solve.png)
+
+![flag](./assets/web/rick-soldier/flag.png)
 
 Flag: **`C2C{R1ck_S0ld13r_0f_G0d_H4s_F4ll3n_v14_SST1_SSR7_bc5b6a19cb75}`**
 
