@@ -1094,7 +1094,7 @@ with open("whatisthis.baboi.recovered", "r") as f:
 print(output_text)
 
 ```
-[image here]
+![solve](./assets/foren/tattletale/solve.png)
 
 Flag: **`C2C{it_is_just_4_very_s1mpl3_l1nuX_k3ylogger_xixixi_haiyaaaaa_ez}`**
 
