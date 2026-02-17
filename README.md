@@ -171,13 +171,13 @@ In this case, the methodology I used to verify the output was to break the expre
 
 # web/corp-mail
 
-Challenge ini memiliki deskripsi seperti berikut:
+This challenge has the following description:
 
 *"Rumor said that my office's internal email system was breached somewhere... must've been the wind."*
 
-Dari sini aku berasumsi kalau challenge ini mencari kelemahan dari email system.
+From this description, I assumed that the challenge focuses on exploiting a weakness in an internal email system.
 
-Kita juga diberikan file `.zip` yang berisi file-file berikut:
+We are also given a `.zip` file containing the following files:
 
 ```
 corp-mail/
@@ -217,11 +217,11 @@ corp-mail/
 └── supervisord.conf
 ```
 
-Dari struktur direktori diatas, aplikasi ini berbasis Flask (pyhton) dan berjalan dibelakang HAProxy sebagai *reverse proxy*.
+Based on the directory structure above, this application is built using Flask (Python) and runs behind HAProxy as a *reverse proxy*.
 
 ### HAProxy
 
-Pertama aku menganalisa `haproxy.cfg` untuk mencari vulnerability dan terdapat sebuah temuan:
+First, I analyzed `haproxy.cfg` to look for potential vulnerabilities and found the following issue:
 
 ```cfg
 backend flask_backend
@@ -229,15 +229,15 @@ backend flask_backend
     server flask1 127.0.0.1:5000 check
 ```
 
-Rule ini akan memblokir semua request ke path `/admin`, tapi HAProxy membaca path secara literal, jadi jika aku pakai `//admin`, akan lolos karena HAProxy membacanya bukan sebagai `/admin` dan aku bisa bypass rule ini.
+This rule blocks all requests to the `/admin` path. However, HAProxy performs a literal path match. As a result, if I use `//admin`, the request bypasses the rule because HAProxy does not interpret it as `/admin`.
 
-Untuk memastikan ini bisa berjalan, aku menganalisa file `routes/auth.py` dan `requirements.txt` dan menemukan kalau terdapat penggunaan **Werkzeug**. Berdasarkan [URL Routing - Werkzeug Documentation](https://werkzeug.palletsprojects.com/en/stable/routing/), `merge_slashes` by default enabled, jadi jika aku mengirimkan request ke path `//admin` akan dianggap sebagai `/admin`.
+To verify that this bypass would work, I analyzed `routes/auth.py` and `requirements.txt` and found that the application uses **Werkzeug**. According to the [URL Routing - Werkzeug Documentation](https://werkzeug.palletsprojects.com/en/stable/routing/), `merge_slashes` is enabled by default. This means that when a request is sent to `//admin`, it will be normalized and treated as `/admin` by the Flask application.
 
-Dengan begitu bisa dipastikan aku bisa bypass rule dalam HAProxy tersebut.
+Therefore, it is confirmed that the HAProxy rule can be bypassed.
 
 ### JWT
 
-pada file `routes/admin.py`, terdapat temuan bahwa semua endpoint dilindungi oleh dekorator `@admin_required`
+In `routes/admin.py`, I found that all endpoints are protected by the `@admin_required` decorator:
 
 ```python
 @bp.route('/')
@@ -246,7 +246,8 @@ def panel():
     ...
 ```
 
-Dalam file `application/auth.py`:
+Looking into `application/auth.py`:
+
 ```pyhton
 def admin_required(f):
     @wraps(f)
@@ -258,11 +259,11 @@ def admin_required(f):
         ...
 ```
 
-Dari sini dapat saya simpulkan kalau dalam bearer token diperlukan field `is_admin`. Setelah itu saya merencanakan untuk **JWT Forgery**
+From this, I concluded that the bearer token must contain an `is_admin` field. Based on this finding, I planned to perform **JWT forgery**.
 
 ### SSTI (Server-Side Template)
 
-pada file `routes/user.py` terdapat temuan
+In `routes/user.py`, I found the following code:
 
 ```python
 @bp.route('/settings', methods=['GET', 'POST'])
@@ -275,21 +276,26 @@ def settings():
         formatted_signature = format_signature(signature_template, g.user['username'])
 ```
 
-dan dari file `application/utils.py` fungsi `format_signature()` memanggil metode `.format()` yang dapat mengizinkan untuk melakukan **traverse attribute dan dictionary keys**
+From `application/utils.py`, the `format_signature()` function calls the `.format()` method, which allows **attribute traversal and dictionary key access**.
 
 ## Exploit
 
-Pertama, aku register dan login, kemudian masuk ke halaman settings
+First, I registered a user and logged in, then navigated to the settings page.
 
-Di bagian **Your Signature**, masukkan payload `{app.config[JWT_SECRET]}`
+In the **Your Signature** field, I submitted the following payload:
 
-Maka kita sudah mendapatkan `JWT_SECRET` untuk forgery
+```
+{app.config[JWT_SECRET]}
+```
+[image here]
 
-Sebelum lanjut ke forgery, kita perlu memastikan format payload tokennya bagaimana. Untuk itu, ambil token user saat ini. Jika dengan Chrome, `F12`, lalu ke tab **Application**, cari bagian **Cookies** lalu ambil value `token`
+This allowed me to leak the `JWT_SECRET`, which is required for token forgery.
 
-Masukkan token ke [jwt.io](https://jwt.io), paste juga `JWT_SECRET` sebelumnya ke **JWT Signature Verification** untuk memastikan secret yang kita dapatkan valid 
+Before forging a token, I needed to confirm the token payload format. To do this, I retrieved the current user token. In Chrome, this can be done by opening `F12`, navigating to the **Application** tab, then checking the **Cookies** section and copying the value of the `token` cookie.
 
-Setelah memastikan format payload token, aku membuat **forged token** dengan script python ini
+I then pasted the token into [jwt.io](https://jwt.io) and also provided the leaked `JWT_SECRET` in the **JWT Signature Verification** section to verify that the secret was valid.
+
+After confirming the payload structure, I created a **forged token** using the following Python script:
 
 ```python
 # forge.py
@@ -315,11 +321,15 @@ print(forged_token)
 print("-" * 50)
 ```
 
-Kemudian kita akan menggunakan token ini ke browser dan masuk ke path `//admin/`
+Next, I replaced the token in the browser with the forged one and accessed the path `//admin/`.
 
-Disini aku sudah berhasil masuk ke Administration Panel. Selanjutnya klik **View Emails** untuk user **admin**
+At this point, I successfully gained access to the Administration Panel. From there, I clicked **View Emails** for the **admin** user.
 
-Dan kita dapat melihat Email History untuk user admin. Disini langsung saja buka email yang dikirimkan ke `mike.wilson` dengan subject "Confidential: ..."
+[image here]
+
+This revealed the email history for the admin account. I then opened the email sent to `mike.wilson` with the subject **"Confidential: ..."**.
+
+[image here]
 
 Flag: **`C2C{f0rm4t_str1ng_l34k5_4nd_n0rm4l1z4t10n_93a7216dd963}`**
 
@@ -327,16 +337,17 @@ Flag: **`C2C{f0rm4t_str1ng_l34k5_4nd_n0rm4l1z4t10n_93a7216dd963}`**
 
 yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
 
-Prompt yang aku gunakan kebanyakan untuk menganalisa file dan mencari vulnerabilities nya.
+Most of the prompts I used were focused on analyzing the source code and identifying potential vulnerabilities.
 
-for example:
+For example:
 ```
 analyze this code and find the vulnerabilites ...
 ```
 
-I also use Gemini to create the `forge.py` script to create the forged token.
+I also used Gemini to generate the `forge.py` script for creating the forged JWT token.
 
-Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan jika gagal, aku coba analisa terlebih dahulu. Sebagai contoh untuk `forge.py` pada awalnya format payload token masih hasil generate Gemini yang belum sesuai, dan saat aku coba gagal. Karena itu aku coba untuk analisa tokennya ke [jwt.io](https://jwt.io) dan menyesuaikan script `forge.py`.
+The methodology I used to verify Gemini’s output was to directly test the generated results. If the output failed, I analyzed the issue manually before making adjustments.  
+For instance, in the case of `forge.py`, the initial token payload format generated by Gemini did not match the expected structure, causing the forgery attempt to fail. As a result, I analyzed the token using [jwt.io](https://jwt.io) and then adjusted the `forge.py` script accordingly to match the correct payload format.
 
 ---
 
@@ -344,25 +355,29 @@ Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan
 
 ## Exploit
 
-Pertama register akun dan login terlebih dahulu untuk mendapatkan token.
+First, I registered an account and logged in to obtain a token.
 
-Setelah masuk ke `/game`, ambil token dari browser. Jika dengan Chrome, `F12`, lalu ke tab **Application**, cari bagian **Cookies** lalu ambil value `token`
+After accessing `/game`, I retrieved the token from the browser. In Chrome, this can be done by pressing `F12`, navigating to the **Application** tab, then checking the **Cookies** section and copying the value of the `token`.
 
-Masukkan token ke [jwt.io](https://jwt.io) untuk menganalisa token.
+I then pasted the token into [jwt.io](https://jwt.io) to analyze its structure.
 
-Setelah memahami format token yang digunakan, gunakan script `exploit.py` ini untuk membuat isi file `jwks.json` dan **forged token**
+After understanding the token format being used, I used the `exploit.py` script to generate the contents of the `jwks.json` file as well as a **forged token**.
 
-Siapkan `nginx`/`apache`/`ngrok` (disini aku menggunakan `nginx`) untuk mengekspose file `jwks.json` di direktori `/var/www/html`
+Next, I prepared `nginx` / `apache` / `ngrok` (in this case, I used `nginx`) to expose the `jwks.json` file from the `/var/www/html` directory.
 
-Disini aku menggunakan **Droplet DigitalOcean** dengan Domain pribadi sehingga setelah aku menambahkan file `jwks.json` ke direktori `/var/www/html` dan menjalankan `nginx`, file ini dapat diakses secara publik di `http://[domain]/jwks.json`
+I used a **DigitalOcean Droplet** with a custom domain, so after placing the `jwks.json` file in `/var/www/html` and starting `nginx`, the file became publicly accessible at:
 
-Setelah itu, aku menggunakan forged token dari output sebelumnya untuk digunakan di browser, kemudian mencoba mengakses ke path `/admin`
+```
+http://[domain]/jwks.json
+```
 
-Namun disini aku di-redirect ke halaman utama kembali (login), tapi setelah beberapa kali mencoba aku menyadari bahwa saat aku akses ke `/admin` halaman admin terbuka sebentar lalu kembali ke halaman login
+After that, I used the forged token from the previous step in the browser and attempted to access the `/admin` path.
 
-Disini aku mencoba interupt dengan **BurpSuite** untuk bisa menganalisa alur redirect dan halaman admin.
+At this point, I was redirected back to the login page. However, after several attempts, I noticed that when accessing `/admin`, the admin page briefly appeared before redirecting back to the login page.
 
-Setelah aku coba interupt dan kirim ke repeater untuk menganalisa halaman admin, terdapat redirect ini
+To further analyze this behavior, I attempted to intercept the request using **BurpSuite** in order to inspect the redirect flow and the admin page.
+
+After intercepting the request and sending it to the Repeater to analyze the admin page, I found the following redirect logic:
 
 ```html
     ...
@@ -376,20 +391,21 @@ Setelah aku coba interupt dan kirim ke repeater untuk menganalisa halaman admin,
     ...
 ```
 
-> **Note:** Disini aku baru menyadari aku tidak perlu pakai BurpSuite sama sekali, karena template halaman `admin.html` ada di direktori `template/` dan aku bisa baca file html dari sini
+> **Note:** At this point, I realized that using Burp Suite was actually unnecessary, since the `admin.html` template exists in the `templates/` directory and the HTML source could be read directly.
 
-Ternyata ada pengecekan dari `localStorage` yang menyebabkan walau sudao lolos JWT, tapi dari `localStorage` nilainya belum berubah.
+It turns out there is an additional check using `localStorage`. Even though the JWT validation had already been bypassed successfully, the values in `localStorage` were still not updated.
 
-Untuk itu ubah `localStorage` lewat console browser dan jalankan 2 command ini:
+To bypass this check, I modified the `localStorage` values directly via the browser console by executing the following commands:
 
 ```javascript
 localStorage.setItem('token', '<forged-token>')
 localStorage.setItem('is_admin', 'true')
 ```
+[image here]
 
-Setelah itu, jika mengakses ke path `/admin` tidak akan di-redirect lagi. Pada Admin Panel ini, kita bisa mendownload URL, dan menyimpannya di direktori `/static`. Ini bisa menjadi celah dimana kita bisa membaca file apapun dari server dengan URL `file:///...`
+After doing this, accessing the `/admin` path no longer resulted in a redirect. From the Admin Panel, it was possible to download a URL and save it into the `/static` directory. This behavior introduced a potential vulnerability that allows reading arbitrary files from the server using a `file:///...` URL.
 
-Namun jika kita lihat pada `routes/admin.py`, terdapat block code ini:
+However, upon inspecting `routes/admin.py`, I found the following code block:
 
 ```python
     # Make sure only http/s are allowed
@@ -402,11 +418,16 @@ Namun jika kita lihat pada `routes/admin.py`, terdapat block code ini:
     ]
 ```
 
-Artinya kita tidak bisa secara langsung menggunakan URL `file:///...`, tapi jika kita coba analisa `routes/admin.py`, aplikasi mengambil file dari URL dengan menggunakan `curl` dan terdapat fitur yang bisa kita exploit.
+This means that using a direct `file:///...` URL is not allowed. However, after further analysis of `routes/admin.py`, I found that the application retrieves files from a URL using `curl`, which exposes a feature that can be exploited.
 
-Kita bisa mengugnakan **URL Globbing** untuk bypass rule ini. Kita cukup mengubah URL menjadi `f{i}le:///` dan kita bisa mengambil file dengan memberikan URL `f{i}le:///flag.txt` (masih asumsi)
+By abusing **URL globbing**, it is possible to bypass this restriction. By modifying the URL to `f{i}le:///`, the blacklist check is bypassed, allowing file retrieval. For example, using the URL:
 
-Disini kita berhasil mendownload URL yang diinputkan dan saat kita cek ke path `/static/flag.txt`, kita mendapatkan flag nya.
+```
+f{i}le:///flag.txt
+```
+(assuming the flag is stored in `flag.txt`).
+
+With this technique, the input URL is successfully downloaded, and by accessing `/static/flag.txt`, the flag is revealed.
 
 Flag: **`C2C{p4rs3r_d1sr4p4ncy_4nd_curl_gl0bb1ng_1s_my_f4v0r1t3_b7126096108f}`**
 
@@ -414,22 +435,23 @@ Flag: **`C2C{p4rs3r_d1sr4p4ncy_4nd_curl_gl0bb1ng_1s_my_f4v0r1t3_b7126096108f}`**
 
 yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
 
-Prompt yang aku gunakan kebanyakan untuk menganalisa file dan mencari vulnerabilities nya.
+Most of the prompts I used were focused on analyzing source files and identifying vulnerabilities.
 
 for example:
 ```
 analyze this code and find the vulnerabilites ...
 ```
 
-I also use Gemini to create the `exploit.py` script to create the `jwks.json` and forged token.
+I also used Gemini to generate the `exploit.py` script for creating the `jwks.json` file and the forged token.
 
-Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan jika gagal, aku coba analisa terlebih dahulu. Misal pada saat menganalisa perilaku redirect saat akses `/admin`. Disini aku memastikan terlebih dahulu kalau token JWT dan file `jwks.json` tidak bermasalah, lalu menganalisa dengan BurpSuite untuk memahami alurnya dan meminta Gemini untuk menganalisa html dari `admin.html`.
+The methodology I used to verify Gemini’s output was to directly test the generated results. If something failed, I analyzed the behavior manually.  
+For example, when analyzing the redirect behavior while accessing `/admin`, I first ensured that the JWT token and the `jwks.json` file were correctly configured. After that, I used Burp Suite to understand the redirect flow and asked Gemini to analyze the HTML logic in `admin.html`.
 
 ---
 
 # web/The Soldier of God, Rick
 
-Pertama, aku menggunakan `file` untuk melihat informasi mengenai file rick_soldier
+First, I used the `file` command to inspect the `rick_soldier` binary:
 
 ```bash
 ┌─[lasangna@parrot]─[~/ctf/c2c/web/soldier]
@@ -437,7 +459,7 @@ Pertama, aku menggunakan `file` untuk melihat informasi mengenai file rick_soldi
 rick_soldier: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, BuildID[sha1]=26a365a5a86653a3b19db1da67bf25628ea8f809, with debug_info, not stripped
 ```
 
-Dari output tersebut, dapat dilihat bahwa file ini memiliki status binary `not stripped` yang artinya bisa kita coba untuk analisa awal dengan menggunakan `nm`
+From the output above, we can see that the binary is **not stripped**, which means we can perform initial analysis using `nm`.
 
 ```bash
 ┌─[lasangna@parrot]─[~/ctf/c2c/web/soldier]
@@ -451,9 +473,9 @@ Dari output tersebut, dapat dilihat bahwa file ini memiliki status binary `not s
 0000000000447600 T runtime.main.func2
 ```
 
-Dari output ini, aku menyimpulkan bahwa dengan adanya `main.content` dan `main.content.files` menunjukkan bahwa aplikasi ini menggunakan `go:embed`.
+From this output, I concluded that the presence of `main.content` and `main.content.files` indicates that the application uses `go:embed`.
 
-Untuk itu, aku mencoba untuk extract embeded files dari binary file `rick_soldier` menggunakan [Go-Embed-Extractor](https://github.com/dimasma0305/Go-Embed-Extractor)
+Based on this, I attempted to extract the embedded files from the `rick_soldier` binary using [Go-Embed-Extractor](https://github.com/dimasma0305/Go-Embed-Extractor).
 
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/web/soldier$ python3 extract_embed.py rick_soldier 
@@ -485,35 +507,40 @@ Untuk itu, aku mencoba untuk extract embeded files dari binary file `rick_soldie
 [+] Extraction complete. Check folder: extracted_embed
 ```
 
-Dari output extract diatas dapat dilihat ada file `.env` yang diextract dari `rick_soldier`
+From the extracted output above, we can see that a `.env` file was successfully extracted from `rick_soldier`.
+
 ```bash
 (ctf-env) lasangna@sandbox:~/ctf/web/soldier$ cat extracted_embed/.env 
 SECRET_PHRASE=Morty_Is_The_Real_One
 ```
 
-Dan isi dari `.env` adalah `SECRET_PHRASE` yang bisa digunakan untuk diisikan sebagai **Secret Key** dari halaman http instance.
+The `.env` file contains a `SECRET_PHRASE`, which can be used as the **Secret Key** on the web instance.
 
-Namun disini kita belum mendapatkan **Battle Cry** yang sesuai
+However, at this stage, we still did not obtain the correct **Battle Cry**.
 
-Selanjutnya, analisa lebih dalam dengan menggunakan **Ghidra + Go Analyzer Extension**
+Next, I performed deeper analysis using **Ghidra with the Go Analyzer Extension**.
 
-Disini aku menganalisa fungsi `main.main` dan menemukan ketika Battle Cry yang diinputkan salah, fungsi yang menangani ini adalah `rick/router.(*Handler).Fight`
+I analyzed the `main.main` function and observed that when an incorrect Battle Cry is submitted, the function responsible for handling this case is `rick/router.(*Handler).Fight`.
 
-Selanjutnya aku menganalisa isi dari fungsi `rick/router.(*Handler).Fight` dan menemukan vulnerability **SSTI**
+I then analyzed the implementation of `rick/router.(*Handler).Fight` and identified an **SSTI (Server-Side Template Injection)** vulnerability:
 
-* Aplikasi mengambil input **Battle Cry** dari form (`FormValue`)
-* Kemudian input dimasukkan dalam `fmt.Sprintf` untuk menyusun string
-* Hasilnya dimasukkan ke `html/template.(*Template).Parse`
+- The application retrieves the **Battle Cry** input from a form using `FormValue`
+- The input is passed into `fmt.Sprintf` to construct a string
+- The resulting string is then parsed using `html/template.(*Template).Parse`
 
-Dari fungsi `main.main` sebelumnya, kita bisa melihat bahwa `FLAG` disimpan dalam struct `Handler` dan fungsi `Fight` dijalankan dalam context struct ini.
+From the earlier analysis of `main.main`, we can see that the `FLAG` is stored inside the `Handler` struct, and the `Fight` function is executed within the context of this struct.
 
-Setelah melakukan beberapa kali percobaan dengan memberikan input yang dibaca sebagai template oleh golang (`{{ ... }}`), aku menemukan command yang akan mencetak seluruh isi struct `BattleView` yaitu `{{ printf "%#v" . }}`
+After multiple attempts using inputs that are interpreted as Go templates (`{{ ... }}`), I discovered a payload that prints the entire contents of the `BattleView` struct:
 
-Command ini akan menggunakan *reflection* untuk membedah seluruh struktur object, termasuk field private.
+```
+{{ printf "%#v" . }}
+```
+
+This payload leverages *reflection* to dump the full structure of the object, including private fields.
 
 ## Exploit
 
-Dengan memasukkan `{{ printf "%#v" . }}` sebagai Battle Cry dan `Morty_Is_The_Real_One` sebagai Secret Key, aku berhasil menampilkan flag ke halaman.
+By submitting `{{ printf "%#v" . }}` as the Battle Cry and `Morty_Is_The_Real_One` as the Secret Key, I successfully caused the application to display the flag on the page.
 
 Flag: **`C2C{R1ck_S0ld13r_0f_G0d_H4s_F4ll3n_v14_SST1_SSR7_bc5b6a19cb75}`**
 
@@ -521,11 +548,11 @@ Flag: **`C2C{R1ck_S0ld13r_0f_G0d_H4s_F4ll3n_v14_SST1_SSR7_bc5b6a19cb75}`**
 
 yes, i use AI to solve this challenge. I used **Gemini 3 Pro**. For the subscription, it's from Google AI Pro with Student Account.
 
-Hampir keseluruhan dari challenge ini aku kerjakan dengan bantuan Gemini, mulai dari analisa pseudocode Ghidra hingga analisa vlunerability golang dan solusinya.
+Almost the entire challenge was solved with the help of Gemini, ranging from analyzing Ghidra pseudocode to identifying Go vulnerabilities and crafting the solution.
 
-Aku hanya berperan dalam menjalankan extract embed dan mendapatkan `.env` dan beberapa percobaan untuk Battle Cry nya.
+My role was mainly focused on extracting the embedded files to obtain the `.env` file and performing several trial-and-error attempts for the Battle Cry payload.
 
-Berikut beberapa contoh prompt yang aku gunakaan untuk menganalisa atau menghasilkan command:
+Below are some example prompts I used to analyze the code or generate payloads:
 
 ```
 analyze this code from rick/router.(*Handler).Fight
@@ -550,7 +577,7 @@ You screamed: "not too easy"
 what command can i use next?
 ```
 
-Metodologi yang aku gunakan untuk memverifikasi output dari Gemini adalah dengan mencoba output yang diberikan Gemini dan jika gagal, aku mencoba untuk mencari referensi lain terlebih dahulu lalu menanyakan kembali untuk solusi selanjutnya ke Gemini.
+The methodology I used to verify Gemini’s output was to directly test the suggested payloads. If they failed, I searched for additional references first before asking Gemini again for the next possible solution.
 
 ---
 
