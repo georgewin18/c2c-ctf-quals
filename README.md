@@ -1561,7 +1561,7 @@ Based on Gemini’s analysis, the exploit scenario is as follows:
 
 First, I launched the instance using the blockchain launcher to obtain the credentials.
 
-[image here]
+![launch](./assets/blockchain/tge/launch_instance.png)
 
 Next, I copied the credentials and placed them into the following `exploit.py` script:
 
@@ -1661,7 +1661,7 @@ Token Address : 0xE1e10c82DB2DcfB51749b5c74426220656704d6B
 [🎯] Exploit Finished! You're on Tier 3 now.
 ```
 
-[image here]
+![flag](./assets/blockchain/tge/get_flag.png)
 
 Flag: **`C2C{just_a_warmup_from_someone_who_barely_warms_up}`**
 
@@ -1900,7 +1900,7 @@ Transactions saved to: /home/lasangna/ctf/bc/convergence/exploit/broadcast/Solve
 Sensitive values saved to: /home/lasangna/ctf/bc/convergence/exploit/cache/Solve.s.sol/31337/run-latest.json
 ```
 
-[image here]
+![solve](./assets/blockchain/convergence/solve.png)
 
 Flag: **`C2C{the_convergence_chall_is_basically_bibibibi}`**
 
@@ -2336,7 +2336,7 @@ Transactions saved to: /home/lasangna/ctf/bc/nexus/exploit/broadcast/ExploitScri
 Sensitive values saved to: /home/lasangna/ctf/bc/nexus/exploit/cache/ExploitScript.s.sol/31337/run-latest.json
 ```
 
-[image here]
+![solve](./assets/blockchain/nexus/solve.png)
 
 Flag: **`C2C{the_essence_of_nexus_is_donation_hahahaha}`**
 
