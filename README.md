@@ -703,6 +703,8 @@ Since the attacker’s IP address was already identified, we can search for logi
 grep "219.75.27.16" access.log | grep "POST /wp-login.php"
 ```
 
+![login](./assets/foren/log/get_login_attempts.png)
+
 From the output, there are 7 login attempts in total. However, if we look closely at the HTTP status codes, 6 requests returned `200`, while 1 request returned `302`.
 
 This indicates that the attacker made 6 failed login attempts (`200 OK`) and successfully logged in on the 7th attempt (`302 Found`).
@@ -745,7 +747,7 @@ Status: Correct!
 
 For Question 5, I directly searched online for the CVE associated with the Easy Quotes plugin.
 
-[image here]
+![cve](./assets/foren/log/cve_search.png)
 
 ### Question 6
 
@@ -831,7 +833,7 @@ except Exception as e:
 
 To better understand the output of this script, I also asked Gemini to help break down and interpret the extracted data.
 
-[image here]
+![gemini_extract](./assets/foren/log/gemini_extract.png)
 
 From the extracted output, we obtained the following fields: `user_login`, `user_email`, `user_nicename`, `display_name`, `user_pass` (hash), `user_registered`, `user_status`, and `user_url`.
 
