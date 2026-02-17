@@ -25,7 +25,7 @@ At first, i thought this was some kind of **OSINT** challenge and i start to sea
 
 Then somehow i clicked Home/Posts/Games menu on the sidebar and it's on the header the whole time
 
-[image here]
+![welcome](./assets/misc/welcome/solve.png)
 
 It takes me about **2,5 hours** to realize that the flag was closer than i thought. People said *"Sometimes, all you need is a step back"* and i guess it is what it is
 
